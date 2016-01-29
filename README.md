@@ -1,6 +1,8 @@
 # TSCI-5050
 Course: TSCI 5050, Introduction to Data Science
 
+Feel free to edit our [course wiki](https://github.com/UTHSCSA-CIRD/TSCI-5050/wiki) as you wish. 
+
 ## Session 01: Introduction
 
 An excerpt of our first class is now up: https://youtu.be/M21l3RMKHJc
