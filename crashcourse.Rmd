@@ -40,7 +40,7 @@ rawdeid.sam <- subset(rawdeid, PATIENT_NUM %in% unique(c(sample(PATIENT_NUM,200)
 
 Plot Y vs BMI_BIN
 ```{r}
-stripchart(Y~BMI_BIN,subset(rawdeid.sam,BMI<90),method = 'jitter',jitter = 0.2,col=c('#FF000040','#0000FF40'),vertical = T,pch='.',cex=10)
+stripchart(Y~BMI_BIN,subset(rawdeid.sam,BMI<90),method = 'jitter',jitter = 0.2,col=c('#FF000010','#0000FF10'),vertical = T,pch='.',cex=8)
 ```
 
 Now let's do a T-test comparing the response of low-BMI and high-BMI patients.
@@ -50,7 +50,7 @@ t.test(Y~BMI_BIN,subset(rawdeid.sam,BMI<90));
 
 Plot Y vs SEX
 ```{r}
-stripchart(Y~SEX,subset(rawdeid.sam,BMI<90),method = 'jitter',jitter = 0.2, col=c('#FF000040','#0000FF40'),vertical = T,pch='.',cex=10)
+stripchart(Y~SEX,subset(rawdeid.sam,BMI<90),method = 'jitter',jitter = 0.2, col=c('#FF000010','#0000FF10'),vertical = T,pch='.',cex=8)
 ```
 
 Now let's do the same thing but comparing the response of females and males.
@@ -67,7 +67,7 @@ summary(lm(Y~SEX,subset(rawdeid.sam,BMI<90)));
 
 Plot Y vs SEX _and_ BMI_BIN
 ```{r}
-stripchart(Y~SEX+BMI_BIN,subset(rawdeid.sam,BMI<90),method = 'jitter',jitter = 0.2,col=c('#FF000040','#0000FF40'),vertical = T,pch='.',cex=10)
+stripchart(Y~SEX+BMI_BIN,subset(rawdeid.sam,BMI<90),method = 'jitter',jitter = 0.2,col=c('#FF000010','#0000FF10'),vertical = T,pch='.',cex=8)
 ```
 
 Woow. Looks like males and females have a different response after all. Why did our t-test come back non-significant?
@@ -100,8 +100,8 @@ summary(lm(Y~SEX*BMI_BIN,subset(rawdeid.sam,BMI<90)));
 But, a linear regression model like the ones fitted by `lm()` doesn't require that the variables be discrete. BMI is naturally a numeric variable, so why not let it stay that way?
 Plot Y vs SEX and _unbinned_ BMI
 ```{r}
-plot(Y~BMI,subset(rawdeid.sam,BMI<90&SEX=='m'),ylim=c(0,30),pch='.',cex=10,col="#0000FF30");
-points(Y~BMI,subset(rawdeid.sam,BMI<90&SEX=='f'),pch='.',cex=10,col="#FF000030");
+plot(Y~BMI,subset(rawdeid.sam,BMI<90&SEX=='m'),ylim=c(0,30),pch='.',cex=8,col="#0000FF20");
+points(Y~BMI,subset(rawdeid.sam,BMI<90&SEX=='f'),pch='.',cex=8,col="#FF000020");
 ```
 
 Here is the regression model.
@@ -119,15 +119,17 @@ No. Not at all. There is an additional source of variability that is not account
 
 Plot Y vs SEX and AGE
 ```{r}
-plot(Y~AGE,subset(rawdeid.sam,BMI<90&SEX=='m'),ylim=c(0,30),pch='.',cex=10,col="#0000FF30");
-points(Y~AGE,subset(rawdeid.sam,BMI<90&SEX=='f'),pch='.',cex=10,col="#FF000030");
+plot(Y~AGE,subset(rawdeid.sam,BMI<90&SEX=='m'),ylim=c(0,30),pch='.',cex=8,col="#0000FF20");
+points(Y~AGE,subset(rawdeid.sam,BMI<90&SEX=='f'),pch='.',cex=8,col="#FF000020");
 ```
 
 But really, `Y~AGE` and `Y~BMI` are both two-dimensional projections of a three-dimensional cloud of data.
 
 Let's install some prerequisite packages for 3D plotting....
 ```{r}
-install.packages('rglwidget','htmlwidgets','htmltools','rgl','plot3Drgl','plot3D','misc3d','plot3Drgl');
+# rglwidget
+require('rglwidget');require('htmlwidgets');require('htmltools');require('rgl');require('plot3Drgl');
+require('plot3D');require('misc3d');
 ```
 
 Now let's see these data-points in their full glory...
@@ -139,17 +141,15 @@ yVbmi <- matrix(c(0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,1),nrow=4,byrow = T);
 yVage <- matrix(c(1,0,0,0,0,0,1,0,0,-1,0,0,0,0,0,1),nrow=4,byrow=T);
 ```
 
-<!--
 ```{r setup}
 library(knitr);
 knit_hooks$set(webgl = hook_webgl)
 ```
--->
 
 ```{r firstplot}
 with(subset(rawdeid.sam,BMI<90),
      scatter3Drgl(AGE,BMI,Y,colvar=as.numeric(SEX),
-                  col=c('#FF000030','#0000FF30'),xlab='Age',ylab='BMI',zlab='Y',FOV=0));
+                  col=c('#FF000010','#0000FF10'),xlab='Age',ylab='BMI',zlab='Y',FOV=0));
 
 browseURL(paste("file://", writeWebGL(dir=tempdir(), width=700), sep=""));
 ```
