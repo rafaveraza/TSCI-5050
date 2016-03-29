@@ -1,5 +1,5 @@
 ---
-title: "Crash Course in Statistics"
+title: "Crash Course in Statistics, Part II"
 author: "Alex F. Bokov"
 date: "03/28/2016"
 output: html_document
