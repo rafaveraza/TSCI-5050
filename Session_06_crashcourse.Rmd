@@ -139,7 +139,7 @@ library(MASS);
 
 sexbmiagerace.lmeB <- stepAIC(sexbmiage.lmeB
   ,direction='both'
-  ,scope=list(lower=.~1,upper.~RACE*SEX*BMI*AGE)
+  ,scope=list(lower=.~1,upper=.~RACE*SEX*BMI*AGE)
   );
 ```
 
@@ -177,3 +177,38 @@ In Black women only, there is a strong inverse correlation with `BMI` and `AGE`.
 * Not checking the residuals on what you think is an appropriate model.
 
 Ready to publish? Nope. This is the training data we used to build our model. Testing hypotheses on the same data is double-dipping! We need to fit this model to the data we have not touched yet. 
+
+First, lets create a dataset of the patients that are not in the `rawdeid.sam` dataset we have been using so far.
+```{r}
+rawdeid.clean<-subset(rawdeid,
+                      !PATIENT_NUM %in% rawdeid.sam$PATIENT_NUM);
+```
+
+This is a large dataset, so for the purposes of this class, lets take a random sample of _this_ one to make it go faster.
+```{r}
+rawdeid.test<-subset(rawdeid
+                     ,PATIENT_NUM %in% sample(unique(PATIENT_NUM),300,rep=F));
+```
+
+Now we take the model we have, update it with this data, and save the result. While we're at it, we do the centering of `AGE` up front.
+```{r}
+sexbmiagerace.test<-update(sexbmiagerace.lmeB
+                           ,data=transform(rawdeid.test
+                                           ,AGE=scale(AGE,scale=F)
+                                           )
+                           );
+```
+
+How do the residuals look?
+```{r}
+plot(sexbmiagerace.test,resid(.,level=0)~fitted(.,level=0),abline=0);
+plot(sexbmiagerace.test
+     ,resid(.,level=0)~fitted(.,level=0)|SEX+RACE
+     ,abline=0);
+
+```
+
+Parameter estimates and hypothesis tests.
+```{r}
+summary(sexbmiagerace.test)$tTable
+```
