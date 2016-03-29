@@ -7,65 +7,63 @@ output: html_document
 
 ```{r,echo=FALSE}
 options(width=300)
-rawdeid <- read.delim('deid_bmi_temp.csv',head=T);
+rawdeid <- subset(read.delim('deid_bmi_temp.csv',head=T),BMI<90);
 rawdeid$AGE <- rawdeid$AGE/365;
 rawdeid$BMI <- as.numeric(as.character(rawdeid$BMI));
 rawdeid$TEMPERATURE <- as.numeric(as.character(rawdeid$TEMPERATURE));
 rawdeid$BMI <- as.numeric(as.character(rawdeid$BMI));
-rawdeid$BMI_BIN <- factor(sign(scale(rawdeid$BMI,center = 28.6)),labels=c('low','mid','hi'));
+rawdeid$BMI_BIN <- factor(sign(scale(rawdeid$BMI,center = 28.59999)),labels=c('low','hi'));
 levels(rawdeid$BMI_BIN) <- c('low','hi','hi');
 levels(rawdeid$SEX)<-c('f','m','m');
 levels(rawdeid$RACE)<-ifelse((xx<-levels(rawdeid$RACE))%in%c('other','black','white'),xx,'other')
-rawdeid$Y[rawdeid$SEX=='f']<- with(subset(rawdeid,SEX=='f'),-1+BMI/2.5+0.01*TEMPERATURE+rnorm(487178));
-rawdeid$Y[rawdeid$SEX!='f']<- with(subset(rawdeid,SEX!='f'),17+0.007*TEMPERATURE-.002*AGE^2+rnorm(805297-487178));
+rawdeid$Y[rawdeid$SEX=='f']<- with(subset(rawdeid,SEX=='f'),-1+BMI/2.5+0.01*TEMPERATURE+rnorm(length(SEX)));
+rawdeid$Y[rawdeid$SEX!='f']<- with(subset(rawdeid,SEX!='f'),17+0.007*TEMPERATURE-.002*AGE^2+rnorm(length(SEX)));
 rawdeid$Y[rawdeid$RACE=='black'&rawdeid$SEX=='f'] <- with(subset(rawdeid,RACE=='black'&SEX=='f'),Y+5-BMI/2-AGE^2*.001);
-rawdeid.sam <- subset(rawdeid, PATIENT_NUM %in% unique(c(sample(PATIENT_NUM,200),sample(unique(PATIENT_NUM[SEX=='f'&RACE=='black']),30))));
+rawdeid.sam <- subset(rawdeid, PATIENT_NUM %in% unique(c(sample(PATIENT_NUM,200),sample(unique(PATIENT_NUM[SEX=='f'&RACE=='black']),30),sample(unique(PATIENT_NUM[SEX=='m'&RACE=='black']),30))));
 ```
 
-Plot Y vs BMI_BIN
+At our last class we looked at a patient dataset with an artificial outcome variable we unimaginatively named `Y`. Here is `Y` in patients with low BMI versus high BMI.
 ```{r}
-stripchart(Y~BMI_BIN,subset(rawdeid.sam,BMI<90),method = 'jitter',jitter = 0.2,col=c('#FF000010','#0000FF10'),vertical = T,pch='.',cex=8)
+stripchart(Y~BMI_BIN,subset(rawdeid.sam),method = 'jitter',jitter = 0.2,col=c('#FF000010','#0000FF10'),vertical = T,pch='.',cex=8,main='Response Y vs BMI')
 ```
 
-Plot Y vs SEX
+Here is `Y` in males vs females.
 ```{r}
-stripchart(Y~SEX,subset(rawdeid.sam,BMI<90),method = 'jitter',jitter = 0.2, col=c('#FF000010','#0000FF10'),vertical = T,pch='.',cex=8)
+stripchart(Y~SEX,rawdeid.sam,method = 'jitter',jitter = 0.2, col=c('#FF000010','#0000FF10'),vertical = T,pch='.',cex=8)
 ```
 
-Plot Y vs SEX _and_ BMI_BIN
+Here is `Y` in all combinations of sex and BMI bin.
 ```{r}
-stripchart(Y~SEX+BMI_BIN,subset(rawdeid.sam,BMI<90),method = 'jitter',jitter = 0.2,col=c('#FF000010','#0000FF10'),vertical = T,pch='.',cex=8)
+stripchart(Y~SEX+BMI_BIN,rawdeid.sam,method = 'jitter',jitter = 0.2,col=c('#FF000010','#0000FF10'),vertical = T,pch='.',cex=8)
 ```
 
-Plot Y vs SEX and _unbinned_ BMI
+We then treated BMI as a numeric variable instead of low/high and saw a different story when we plotted `Y` vs BMI for males vs females..
 ```{r}
-plot(Y~BMI,subset(rawdeid.sam,BMI<90&SEX=='m'),ylim=c(0,30),pch='.',cex=8,col="#0000FF20");
-points(Y~BMI,subset(rawdeid.sam,BMI<90&SEX=='f'),pch='.',cex=8,col="#FF000020");
+plot(Y~BMI,subset(rawdeid.sam,SEX=='m'),ylim=c(0,30),pch='.',cex=8,col="#0000FF20");
+points(Y~BMI,subset(rawdeid.sam,SEX=='f'),pch='.',cex=8,col="#FF000020");
 ```
 
-Here is the regression model.
+```{r,echo=FALSE}
+sexbmi <- lm(Y~SEX*BMI,rawdeid.sam);
+sexbmiage <- lm(Y~SEX*BMI*AGE,rawdeid.sam);
+```
+
+We also tried plotting `Y` vs age, for males vs females.
 ```{r}
-sexbmi <- lm(Y~SEX*BMI,subset(rawdeid.sam,BMI<90));
-summary(sexbmi);
+plot(Y~AGE,subset(rawdeid.sam,SEX=='m'),ylim=c(0,30),pch='.',cex=8,col="#0000FF20");
+points(Y~AGE,subset(rawdeid.sam,SEX=='f'),pch='.',cex=8,col="#FF000020");
 ```
 
-Plot Y vs SEX and AGE
-```{r}
-plot(Y~AGE,subset(rawdeid.sam,BMI<90&SEX=='m'),ylim=c(0,30),pch='.',cex=8,col="#0000FF20");
-points(Y~AGE,subset(rawdeid.sam,BMI<90&SEX=='f'),pch='.',cex=8,col="#FF000020");
+```{r,echo=FALSE}
+sexbmiage.aic <- step(sexbmiage,scope=list(.~1,.~.),direction = "both",trace=0);
 ```
 
-Some evidence of non-linearity, but much better than before. But do we _really_ need _all_ these terms? How do we decide which ones to keep?
-```{r}
-sexbmiage.aic <- step(sexbmiage,scope=list(.~1,.~.),direction = "both");
-```
-
-Not visibly worse. But there is something else to keep in mind-- these data-points are not independent! Some of them come from the same individual sampled at multiple ages! To separately account for within-indvididual and between-individual variation, we need to use the `nlme` library.
+But there is something else to keep in mind-- these data-points are not independent! Some of them come from the same individual sampled at multiple ages! To separately account for within-indvididual and between-individual variation, we need to use the `nlme` library.
 ```{r}
 library(nlme);
 ```
 
-Now, do some minor dark magic that we won't have time to discuss.
+We set some options to use with the `lme()` function.
 ```{r}
 lmec <- lmeControl(opt='optim',maxIter=100,msMaxIter=100,niterEM=50,msMaxEval=400,nlmStepMax=200);
 ```
@@ -106,20 +104,22 @@ So, we are better off with a random `BMI` term in addition to a random baseline.
 
 Standardized residuals look better now.
 ```{r}
-plot(sexbmiage.lmeA);
+plot(sexbmiage.lmeB,level=0);
 ```
 
 Not bad! But, what if I told you there was an additional variable available: `RACE`? When I simulated the `Y` variable, for Black women only, I gave it a strong inverse correlation with `BMI` and `AGE`^2. So strong that at higher values `Y` becomes negative, and at the beginning I stipulated that a negative `Y` means the patient is in danger! Do we have enough of a sample (of unique patients) to detect this?
 ```{r}
-cbind(table(unique(rawdeid.sam[,c('PATIENT_NUM','RACE')])$RACE))
+cbind(table(unique(rawdeid.sam[,c('PATIENT_NUM','RACE','SEX')])[,c('RACE','SEX')]));
 ```
 
 Let's find out.
 ```{r}
-try(sexbmiagerace.lmeA <- update(sexbmiage.lmeA,.~.:RACE+RACE,control=lmec,subset=BMI<90));
-try(sexbmiagerace.lmeB <- update(sexbmiage.lmeB,.~.:RACE+RACE,control=lmec,subset=BMI<90));
-try(anova(sexbmiage.lmeA,sexbmiagerace.lmeA));
-try(anova(sexbmiage.lmeB,sexbmiagerace.lmeB));
+try(sexbmiagerace.lmeA <- update(sexbmiage.lmeA,.~.:RACE+RACE,control=lmec));
+try(sexbmiagerace.lmeB <- update(sexbmiage.lmeB,.~.:RACE+RACE,control=lmec));
+if('sexbmiagerace.lmeA'%in%names(.GlobalEnv)) anova(sexbmiage.lmeA,sexbmiagerace.lmeA);
+if('sexbmiagerace.lmeB'%in%names(.GlobalEnv)) anova(sexbmiage.lmeB,sexbmiagerace.lmeB);
+plot(sexbmiagerace.lmeB,level=0);
+summary(sexbmiagerace.lmeB);
 ```
 
 So, for Black women only, this hypothetical drug would be hazardous, and strongly counter-indicated. Yet, if we used too small a sample size, or one with too few Black women in it, _we would not have noticed_. If we had added `RACE` to the model and ran `step()` it would have said that `RACE` is not a significant source of variation. In other words, any of the following can result in data being misinterpreted potentially putting patients at risk:
@@ -130,15 +130,3 @@ So, for Black women only, this hypothetical drug would be hazardous, and strongl
 * Including too many irrelevant variables.
 * Not checking the residuals on what you think is an appropriate model.
 
-<!--
-Plot Y vs SEX and TEMPERATURE
-```{r}
-#plot(Y~TEMPERATURE,subset(rawdeid.sam,BMI<90&SEX=='m'),ylim=c(0,30),pch='.',cex=10,col="#0000FF30");
-#points(Y~TEMPERATURE,subset(rawdeid.sam,BMI<90&SEX=='f'),pch='.',cex=10,col="#FF000030");
-```
-
-Plot all the data
-```{r}
-#plot(subset(cbind(jitter(data.matrix(rawdeid[,2:3])),rawdeid[,4:6]),BMI<90 & TEMPERATURE>91 & TEMPERATURE<104),pch='.',cex=2,col='#00000002');
-```
--->
