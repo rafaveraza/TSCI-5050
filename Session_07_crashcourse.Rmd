@@ -278,3 +278,9 @@ Now the big model.
 ```{r}
 .junk<-sapply(names(model.frame(fitaic1))[-1],function(ii) devres(fitaic1,ii));
 ```
+
+Now let's fit the untouched data for hypothesis testing.
+```{r}
+fitfinal<-update(fitaic1,data=fracdat[setdiff(1:nrow(fracdat),trainingset),]);
+summary(fitfinal);
+```
