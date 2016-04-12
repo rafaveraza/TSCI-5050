@@ -234,7 +234,6 @@ Let's plot the hazards.
 ```{r}
 layout(matrix(1:6,nrow=2));
 plot(zph1,pch='.',df=2);
-layout(matrix(1:10,nrow=2));
 plot(zphaic1,pch='.',df=2)
 ```
 
