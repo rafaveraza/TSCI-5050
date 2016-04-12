@@ -234,7 +234,10 @@ Let's plot the hazards.
 ```{r}
 layout(matrix(1:6,nrow=2));
 plot(zph1,pch='.',df=2);
-# And now the larger model
+```
+
+And now the larger model
+```{r}
 plot(zphaic1,pch='.',df=2)
 ```
 
