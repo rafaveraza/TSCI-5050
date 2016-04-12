@@ -178,6 +178,7 @@ There are fewer older and younger kids, i.e. in the regions outside the red vert
 ```{r}
 fracdat1<-subset(fracdat0,startage>=3800 & startage<=6200);
 ```
+
 Let's see the new mosaic plot. Much cleaner.
 ```{r}
 mosaicplot(table(droplevels(
@@ -281,6 +282,11 @@ Let's see how they work with the variables of the small and large models...
 Now the big model.
 ```{r}
 .junk<-sapply(names(model.frame(fitaic1))[-1],function(ii) devres(fitaic1,ii));
+```
+
+Center the variables so that the main effects mean something.
+```{r}
+#
 ```
 
 Now let's fit the untouched data for hypothesis testing.
