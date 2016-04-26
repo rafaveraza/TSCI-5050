@@ -334,13 +334,13 @@ Let's add some noise to our data, and see if we can separate out the relevant va
 ```{r}
 rawdeid.sam$VAR01<-rnorm(nrow(rawdeid.sam),mean = 5,sd=2.5)
 rawdeid.sam$VAR02<-rlnorm(nrow(rawdeid.sam),mean = 2.5,sd=1.2)
-rawdeid.sam$VAR03<-rchisq(nrow(rawdeid.sam),ncp = 3)
+rawdeid.sam$VAR03<-rchisq(nrow(rawdeid.sam), df=2, ncp = 3)
 ```
 
 ### Correlation Matrix
 Which variables correlate with which other variables? Let's create a correlation matrix. 
 ```{r}
- rawdeid.cor <- cor(rawdeid.sam,use = 'pairwise');
+ rawdeid.cor <- cor(data.matrix(rawdeid.sam),use = 'pairwise');
 ```
 
 And now let's create a convenient color-generating function to use in the next several examples.
