@@ -332,9 +332,9 @@ There is a lot more to `ggplot2` than we covered here, but hopefully this will g
 Let's add some noise to our data, and see if we can separate out the relevant variables from the rest.
 
 ```{r}
-rawdeid.sam$VAR01<-rnorm(nrow(toclust.sam),mean = 5,sd=2.5)
-rawdeid.sam$VAR02<-rlnorm(nrow(toclust.sam),mean = 2.5,sd=1.2)
-rawdeid.sam$VAR03<-rchisq(nrow(toclust.sam),ncp = 3)
+rawdeid.sam$VAR01<-rnorm(nrow(rawdeid.sam),mean = 5,sd=2.5)
+rawdeid.sam$VAR02<-rlnorm(nrow(rawdeid.sam),mean = 2.5,sd=1.2)
+rawdeid.sam$VAR03<-rchisq(nrow(rawdeid.sam),ncp = 3)
 ```
 
 ### Correlation Matrix
@@ -358,13 +358,23 @@ heatmap(rawdeid.cor,symm = TRUE
 ### Plotting Correlations with `plotcorr`
 Here is another way to visualize correlation. For this we will need the `ellipse` library.
 
-```{r}
+```{r,warning=FALSE}
 install.packages('ellipse'); library(ellipse);
 plotcorr(rawdeid.cor, col=rgb(colorfun((rawdeid.cor+1)/2), maxColorValue=255));
 ```
 
 ### K-Means Clustering
-The idea behind K-means is to optimally divide the data into K clusters. First, we empirically determine how many clusters the data "wants" to be divided into.
+The idea behind K-means is to optimally divide the data into K clusters. A good library for doing this is `fpc`.
+```{r,warning=FALSE}
+instal.packages('fpc'); library(fpc);
+deidk <- pamk(data.matrix(rawdeid.sam)
+              ,krange=2:5,usepam = F,scaling = T,critout = T);
+deidk$nc;
+plot(deidk$pamobject);
+```
+
 
 
 ## Decision Trees
+
+To be continued!
