@@ -359,14 +359,14 @@ heatmap(rawdeid.cor,symm = TRUE
 Here is another way to visualize correlation. For this we will need the `ellipse` library.
 
 ```{r,warning=FALSE}
-install.packages('ellipse'); library(ellipse);
+#install.packages('ellipse'); library(ellipse);
 plotcorr(rawdeid.cor, col=rgb(colorfun((rawdeid.cor+1)/2), maxColorValue=255));
 ```
 
 ### K-Means Clustering
 The idea behind K-means is to optimally divide the data into K clusters. A good library for doing this is `fpc`.
 ```{r,warning=FALSE}
-instal.packages('fpc'); library(fpc);
+#install.packages('fpc'); library(fpc);
 deidk <- pamk(data.matrix(rawdeid.sam)
               ,krange=2:5,usepam = F,scaling = T,critout = T);
 deidk$nc;
