@@ -297,8 +297,6 @@ mygg +
   stat_smooth(aes(group=SEX,color=SEX));  
 ```
 
-So here, in one plot is the visual accompaniment of the statistical story that unfolded in sessions 5 and 6.
-
 By the way, remember how `x` is an `aes()` variable? What if we override it inside of `geom_line()` and `stat_smooth`? Will that work? Let's find out.
 ```{r,warning=FALSE,message=FALSE}
 mygg + 
@@ -312,7 +310,9 @@ mygg +
 
 ```
 
-## Challenge: find someone who thinks it's a good idea to spend $1000/seat on MS Tableau and ask them how long it will take them to reproduce the above results.
+So here, in one plot is the visual accompaniment of the statistical story that unfolded in sessions 5 and 6.
+
+## Challenge: find someone who thinks it's a good idea to spend $1000/seat on MS Tableau and see how long it will take them to reproduce the above results.
 
 # Part 2: Clustering and Decision Trees
 
